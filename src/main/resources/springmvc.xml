@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+      http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+
+    <!-- 开启springMVC的注解驱动代替handlermapping和handleradapter，默认加载了很多参数的绑定方法，比如json转换器，比如@RequestMapping-->
+    <mvc:annotation-driven />
+
+    <!-- 因为swagger-ui项目都是静态资源，restful形式的拦截方法会将静态资源进行拦截处理，
+    所以在springmvc配置文件中需要配置对静态文件的处理方式。所有swagger目录的访问，直接访问location指定的目录-->
+    <mvc:resources mapping="/swagger/**" location="/WEB-INF/swagger/" />
+    <!-- 将 springSwaggerConfig加载到spring容器 -->
+    <bean class="com.mangofactory.swagger.configuration.SpringSwaggerConfig" id="springSwaggerConfig" />
+    <!-- 将自定义的swagger配置类加载到spring容器 -->
+    <bean class="com.ren.swagger.SwaggerConfig" />
+
+    <!-- 扫描组件@Component,@Repository,@Service,@Controller-->
+    <context:component-scan base-package="com.ren"/>
+
+    <!-- 静态资源(js、image等)的访问 -->
+    <mvc:default-servlet-handler/>
+
+    <!--ViewResolver 视图解析器-->
+    <!--用于支持Servlet、JSP视图解析-->
+    <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!-- springmvc文件上传需要配置的节点-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="20971500"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+        <property name="resolveLazily" value="true"/>
+    </bean>
+
+
+
+</beans>

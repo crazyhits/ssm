@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+    <!-- 自动扫描 -->
+    <context:component-scan base-package="com.ren" />
+
+    <!-- 引入jdbc配置文件 -->
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:jdbc.properties" />
+    </bean>
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc_driverClassName}"/>
+        <property name="jdbcUrl" value="${jdbc_url}"/>
+        <property name="user" value="${jdbc_username}"/>
+        <property name="password" value="${jdbc_password}"/>
+        <!-- 初始化连接大小 -->
+        <property name="initialPoolSize" value="${initialSize}"/>
+        <!-- 连接池最大数量 -->
+        <property name="maxPoolSize" value="${maxActive}"/>
+        <property name="minPoolSize" value="${minActive}"/>
+        <!-- 连接池最大空闲时间 -->
+        <property name="maxIdleTime" value="${maxIdleTime}"/>
+    </bean>
+
+    <!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
+    <!--配置sqlSessionFactory 并将数据源注入-->
+    <bean id="ssf" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--注入数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--用于配置mapper映射xml-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+        <!--<property name="mapperLocations" value="classpath:mapper/UserMapper.xml"/>-->
+    </bean>
+
+
+    <!-- DAO接口所在包名，Spring会自动查找其下的类 -->
+    <!--创建数据映射器，可以根据指定路径批量生成dao实现-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--扫描com.ren.dao包下所有接口-->
+        <property name="basePackage" value="com.ren.dao" />
+    </bean>
+
+    <!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+
+</beans>
